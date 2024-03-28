@@ -7,9 +7,10 @@ import { Buffer } from "node:buffer";
  * DNS query format { type: 'query', id: 1, flags: 256, questions: [{ type: 'A', name: 'google.com' }] }
  */
 
-function formatQuery(dnsQuery: ArrayBuffer | object) {
+// deno-lint-ignore no-explicit-any
+function formatQuery(dnsQuery: any, contentType: string) {
 
-  if (dnsQuery instanceof ArrayBuffer === false) { return dnsPacket.encode(dnsQuery) }
+  if (contentType === 'application/dns-json') { return dnsPacket.encode(dnsQuery) }
 
   const buffer = Buffer.from(dnsQuery);
   try {
@@ -21,15 +22,19 @@ function formatQuery(dnsQuery: ArrayBuffer | object) {
 }
 
 export default async function PostRequest(request: Request) {
-  const contentType = request.headers.get('conent-type');
-  console.log('contentType ===> ', contentType);
+  const contentType = request.headers.get('content-type');
+  console.log('contentType ==> ', contentType);
 
   try {
+
+    if (!contentType) throw new Error('No content type specified');
+
     const arrayBuffer = await request.arrayBuffer();
+    const buffer = formatQuery(arrayBuffer, contentType);
 
-    if (!Buffer.isBuffer(formatQuery(arrayBuffer))) throw new Error('DNS query is not buffer')
+    if (!Buffer.isBuffer(buffer)) throw new Error('DNS query is not buffer');
 
-    const dnsResponse = await axios.post(config.upstream, formatQuery(arrayBuffer), {
+    const dnsResponse = await axios.post(config.upstream, buffer, {
       method: 'POST',
       headers: { 'Content-Type': 'application/dns-message' },
       responseType: 'arraybuffer'
@@ -45,7 +50,7 @@ export default async function PostRequest(request: Request) {
     console.error('\nErr==>', error.message);
 
     return new Response(error.message, {
-      status: 200,
+      status: 400,
       headers: config.headers
     })
   }
