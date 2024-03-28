@@ -1,5 +1,5 @@
 const config = {
-  upstream: 'https://dns.cloudflare.com/dns-query',
+  upstream: 'https://dns.google/dns-query',
   port: 3000,
   hostname: '127.0.0.1',
   headers: {

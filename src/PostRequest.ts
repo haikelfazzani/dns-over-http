@@ -8,50 +8,29 @@ import { Buffer } from "node:buffer";
  */
 
 // deno-lint-ignore no-explicit-any
-function formatQuery(dnsQuery: any, contentType: string) {
-
-  if (contentType === 'application/dns-json') { return dnsPacket.encode(dnsQuery) }
+function formatQuery(dnsQuery: any, contentType: string | null) {
+  if (contentType && contentType === 'application/dns-json') { return dnsPacket.encode(dnsQuery) }
 
   const buffer = Buffer.from(dnsQuery);
-  try {
-    return dnsPacket.encode(JSON.parse(buffer.toString()))
-  } catch (error) {
-    console.log('formatQuery', error.message);
-    return buffer
-  }
+  const str = buffer.toString();
+  return str.startsWith('{') ? dnsPacket.encode(JSON.parse(str)) : buffer
 }
 
 export default async function PostRequest(request: Request) {
   const contentType = request.headers.get('content-type');
-  console.log('contentType ==> ', contentType);
 
-  try {
+  if (!contentType) throw new Error('No Content-Type is specified');
 
-    if (!contentType) throw new Error('No content type specified');
+  const arrayBuffer = await request.arrayBuffer();
+  const buffer = formatQuery(arrayBuffer, contentType);
 
-    const arrayBuffer = await request.arrayBuffer();
-    const buffer = formatQuery(arrayBuffer, contentType);
+  if (!Buffer.isBuffer(buffer)) throw new Error('DNS query is not buffer');
 
-    if (!Buffer.isBuffer(buffer)) throw new Error('DNS query is not buffer');
+  const dnsResponse = await axios.post(config.upstream, buffer, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/dns-message' },
+    responseType: 'arraybuffer'
+  });
 
-    const dnsResponse = await axios.post(config.upstream, buffer, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/dns-message' },
-      responseType: 'arraybuffer'
-    });
-
-    const response = new Response(dnsResponse.data, {
-      status: 200,
-      headers: config.headers
-    });
-
-    return response
-  } catch (error) {
-    console.error('\nErr==>', error.message);
-
-    return new Response(error.message, {
-      status: 400,
-      headers: config.headers
-    })
-  }
+  return new Response(dnsResponse.data, { status: 200, headers: config.headers });
 }
