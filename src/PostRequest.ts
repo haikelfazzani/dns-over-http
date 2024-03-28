@@ -16,7 +16,7 @@ export default async function PostRequest(request: Request) {
     const arrayBuffer = await request.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
 
-    console.log('\n', buffer.toString(),'\n');
+    console.log('\n', buffer.toString('utf8'),'\n');
 
     // const queryJSon = JSON.parse(queryText);
 
@@ -24,7 +24,7 @@ export default async function PostRequest(request: Request) {
 
     // }
 
-    const dnsResponse = await axios.post(config.upstream, dnsPacket.encode(JSON.parse(buffer.toString())), {
+    const dnsResponse = await axios.post(config.upstream, buffer, {
       method: 'POST',
       headers: { 'Content-Type': 'application/dns-message' },
       responseType: 'arraybuffer'
