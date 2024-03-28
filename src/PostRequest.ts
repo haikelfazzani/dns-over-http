@@ -15,7 +15,7 @@ export default async function PostRequest(request: Request) {
     const body = await request.arrayBuffer();
   
     // const queryText = new TextDecoder().decode(body).trim();
-    console.log('\n\n', new TextDecoder().decode(body));
+    console.log('\n\n', new TextDecoder().decode(body), dnsPacket.encode(body));
     
     // const queryJSon = JSON.parse(queryText);
   
