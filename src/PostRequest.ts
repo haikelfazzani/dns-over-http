@@ -7,10 +7,13 @@ import { Buffer } from "node:buffer";
  * DNS query format { type: 'query', id: 1, flags: 256, questions: [{ type: 'A', name: 'google.com' }] }
  */
 
-function formatQuery(arrayBuffer: ArrayBuffer) {
-  const buffer = Buffer.from(arrayBuffer);
+function formatQuery(dnsQuery: ArrayBuffer | object) {
+
+  if (dnsQuery instanceof ArrayBuffer === false) { return dnsPacket.encode(dnsQuery) }
+
+  const buffer = Buffer.from(dnsQuery);
   try {
-    return dnsPacket.encode(JSON.parse(buffer.toString('utf8').trim()))
+    return dnsPacket.encode(JSON.parse(buffer.toString()))
   } catch (error) {
     console.log('formatQuery', error.message);
     return buffer
@@ -18,18 +21,13 @@ function formatQuery(arrayBuffer: ArrayBuffer) {
 }
 
 export default async function PostRequest(request: Request) {
-  // const contentType = request.headers.get('conent-type');
-  // console.log('contentType ', contentType, request.headers);
-  // console.log(request.url);
+  const contentType = request.headers.get('conent-type');
+  console.log('contentType ===> ', contentType);
 
   try {
     const arrayBuffer = await request.arrayBuffer();
 
     if (!Buffer.isBuffer(formatQuery(arrayBuffer))) throw new Error('DNS query is not buffer')
-
-    // if (contentType === 'application/dns-json') {
-
-    // }
 
     const dnsResponse = await axios.post(config.upstream, formatQuery(arrayBuffer), {
       method: 'POST',
