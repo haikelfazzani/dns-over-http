@@ -15,7 +15,7 @@ export default async function PostRequest(request: Request) {
     const body = await request.arrayBuffer();
   
     // const queryText = new TextDecoder().decode(body).trim();
-    console.log('\n\n', new TextDecoder().decode(body), dnsPacket.encode(body));
+    console.log('\n\n', body, new TextDecoder().decode(body), dnsPacket.encode(body));
     
     // const queryJSon = JSON.parse(queryText);
   
@@ -23,7 +23,7 @@ export default async function PostRequest(request: Request) {
   
     // }
   
-    const dnsResponse = await axios.post(config.upstream, dnsPacket.encode(body), {
+    const dnsResponse = await axios.post(config.upstream, dnsPacket.encode({ type: 'query', id: 1, flags: 256, questions: [{ type: 'A', name: 'google.com' }] }), {
       method: 'POST',
       headers: { 'Content-Type': 'application/dns-message' },
       responseType: 'arraybuffer'
