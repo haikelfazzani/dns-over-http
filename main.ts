@@ -13,7 +13,7 @@ const options: Deno.ServeOptions | Deno.ServeTlsOptions = {
 Deno.serve(options, handler);
 
 async function handler(request: Request, info: Deno.ServeHandlerInfo): Promise<Response> {
-  console.log('info ==> ', info.remoteAddr, request.method);
+  // console.log('info ==> ', info.remoteAddr, request.method);
   if (request.method === 'GET') {
     return await GetRequest(request)
   }

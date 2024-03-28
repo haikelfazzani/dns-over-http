@@ -4,9 +4,6 @@ import config from '../config.ts';
 
 export default async function GetRequest(request: Request) {
 
-  console.log('get', request.url);
-  
-
   const url = new URL(request.url)
   const queryName = url.searchParams.get('dns');
   const queryType = url.searchParams.get('type');
@@ -19,7 +16,7 @@ export default async function GetRequest(request: Request) {
     responseType: 'arraybuffer'
   });
 
-  return new Response("dnsResponse.data", {
+  return new Response(dnsResponse.data, {
     status: 200,
     headers: config.headers
   })
