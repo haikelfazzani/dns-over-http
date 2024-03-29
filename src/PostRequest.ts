@@ -2,35 +2,45 @@ import axios from 'npm:axios';
 import dnsPacket from 'npm:dns-packet';
 import config from '../config.ts';
 import { Buffer } from "node:buffer";
+import isDomainBlocked from "./utils/isDomainBlocked.ts";
+import { DNSPostQuery } from "./types.ts";
+import dnsResponse from './utils/dnsResponse.ts'
 
 /**
  * DNS query format { type: 'query', id: 1, flags: 256, questions: [{ type: 'A', name: 'google.com' }] }
  */
 
 // deno-lint-ignore no-explicit-any
-function formatQuery(dnsQuery: any, contentType: string | null) {
-  if (contentType && contentType === 'application/dns-json') { return dnsPacket.encode(dnsQuery) }
+function bufferToJSON(dnsQuery: any, contentType: string | null): DNSPostQuery {
+  if (contentType && contentType === 'application/dns-json') { return dnsQuery }
 
   const buffer = Buffer.from(dnsQuery);
   const str = buffer.toString();
-  return str.startsWith('{') ? dnsPacket.encode(JSON.parse(str)) : buffer
+  return str.startsWith('{') ? JSON.parse(str) : dnsPacket.decode(buffer)
 }
 
 export default async function PostRequest(request: Request) {
   const contentType = request.headers.get('content-type');
 
-  if (!contentType) throw new Error('No Content-Type is specified');
+  // if (!contentType) throw new Error('No Content-Type is specified');
 
   const arrayBuffer = await request.arrayBuffer();
-  const buffer = formatQuery(arrayBuffer, contentType);
+  const dnsJSON = bufferToJSON(arrayBuffer, contentType);
+
+  if (config.useHosts && await isDomainBlocked(dnsJSON.questions[0].name)) {
+    console.log('is black listed', dnsJSON.questions[0].name);
+    return new Response(dnsPacket.encode(dnsResponse(dnsJSON.questions[0].name, dnsJSON.questions[0].type || 'A')), { status: 200, headers: config.headers })
+  }
+
+  const buffer = dnsPacket.encode(dnsJSON);
 
   if (!Buffer.isBuffer(buffer)) throw new Error('DNS query is not buffer');
 
-  const dnsResponse = await axios.post(config.upstream, buffer, {
+  const rdr = await axios.post(config.upstream, buffer, {
     method: 'POST',
     headers: { 'Content-Type': 'application/dns-message' },
     responseType: 'arraybuffer'
   });
 
-  return new Response(dnsResponse.data, { status: 200, headers: config.headers });
+  return new Response(rdr.data, { status: 200, headers: config.headers });
 }
