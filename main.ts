@@ -11,7 +11,7 @@ const options: Deno.ServeOptions | Deno.ServeTlsOptions = {
   port: config.port,
   hostname: config.hostname
 }
-console.log(Deno.env.has('DENO_ENV'))
+
 Deno.serve(options, handler);
 
 async function handler(request: Request): Promise<Response> {

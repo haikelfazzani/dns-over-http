@@ -3,7 +3,7 @@ import dnsPacket from 'npm:dns-packet';
 import config from '../config.ts';
 import { Buffer } from "node:buffer";
 import isDomainBlocked from "./utils/isDomainBlocked.ts";
-import { DNSPostQuery } from "./types.ts";
+import { DNSPostQuery } from "../types.ts";
 import dnsResponse from './utils/dnsResponse.ts'
 
 /**
@@ -27,6 +27,7 @@ export default async function PostRequest(request: Request) {
   const arrayBuffer = await request.arrayBuffer();
   const dnsJSON = bufferToJSON(arrayBuffer, contentType);
 
+  // must add 0.0.0.0 to each black listed questions as data
   for (let i = 0; i < dnsJSON.questions.length; i++) {
     const question = dnsJSON.questions[i];
 
