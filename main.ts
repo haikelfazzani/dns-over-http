@@ -19,7 +19,7 @@ async function handler(request: Request): Promise<Response> {
     const url = new URL(request.url);
     if (!validRequestPaths.some(v => v.includes(url.pathname))) throw new Error('Invalid pathname');
 
-    return request.method === 'GET' ? GetRequest(request) : PostRequest(request);
+    return request.method === 'GET' ? await GetRequest(request) : await PostRequest(request);
   } catch (error) {
     console.error('\nErr==>', error.message);
     return new Response(error.message, { status: 400, headers: config.headers })
