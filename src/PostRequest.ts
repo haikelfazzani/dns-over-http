@@ -27,9 +27,13 @@ export default async function PostRequest(request: Request) {
   const arrayBuffer = await request.arrayBuffer();
   const dnsJSON = bufferToJSON(arrayBuffer, contentType);
 
-  if (config.useHosts && await isDomainBlocked(dnsJSON.questions[0].name)) {
-    console.log('is black listed', dnsJSON.questions[0].name);
-    return new Response(dnsPacket.encode(dnsResponse(dnsJSON.questions[0].name, dnsJSON.questions[0].type || 'A')), { status: 200, headers: config.headers })
+  for (let i = 0; i < dnsJSON.questions.length; i++) {
+    const question = dnsJSON.questions[i];
+
+    if (config.useHosts && await isDomainBlocked(question.name)) {
+      console.log('is black listed', question.name);
+      return new Response(dnsPacket.encode(dnsResponse(question.name, question.type || 'A')), { status: 200, headers: config.headers })
+    }
   }
 
   const buffer = dnsPacket.encode(dnsJSON);
