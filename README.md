@@ -67,3 +67,4 @@ ARCOUNT -> 16 bit | An unsigned 16 bit integer specifying the number of resource
 - [rfc8484](https://datatracker.ietf.org/doc/html/rfc8484)
 - [rfc1035](https://www.ietf.org/rfc/rfc1035.txt)
 - [cloudflare](https://developers.cloudflare.com/1.1.1.1/encryption/dns-over-https/)
+- [zytrax](https://www.zytrax.com/books/dns/ch15/)

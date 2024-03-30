@@ -20,7 +20,7 @@ export default async function PostRequest(request: Request) {
   const question = dnsJSON.questions[0];
 
   if (config.useHosts && await DomainBlacklistChecker.fromStream(question.name)) {
-    console.log('is black listed', question.name);
+    console.log('black listed', question.name);
     return new Response(dnsPacket.encode(createDNSResponse(question, dnsJSON.id)), { status: 200, headers: config.headers })
   }
   

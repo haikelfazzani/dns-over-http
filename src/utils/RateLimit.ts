@@ -1,6 +1,6 @@
 const rateLimits = new Map<string, { timestamp: number, count: number }>();
 const windowMs = 10000; // 10 seconds
-const maxRequests = 5;
+const maxRequests = 10;
 
 export default function RateLimit(addr: Deno.NetAddr) {
   const now = Date.now();
