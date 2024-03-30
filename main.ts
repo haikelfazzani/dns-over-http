@@ -1,6 +1,7 @@
 import config from "./config.ts";
 import GetRequest from "./src/GetRequest.ts";
 import PostRequest from "./src/PostRequest.ts";
+import RateLimit from "./src/utils/RateLimit.ts";
 
 const validRequestPaths = ['/', '/dns-query'];
 
@@ -14,8 +15,12 @@ const options: Deno.ServeOptions | Deno.ServeTlsOptions = {
 
 Deno.serve(options, handler);
 
-async function handler(request: Request): Promise<Response> {
+async function handler(request: Request, info: Deno.ServeHandlerInfo): Promise<Response> {
   try {
+    if(RateLimit(info.remoteAddr)) {
+      return new Response("Rate limit exceeded", { status: 429 })
+    }
+
     const url = new URL(request.url);
     if (!validRequestPaths.some(v => v.includes(url.pathname))) throw new Error('Invalid pathname');
 

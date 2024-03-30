@@ -1,8 +1,8 @@
 import axios from 'npm:axios';
 import dnsPacket from 'npm:dns-packet';
 import config from '../config.ts';
-import dnsResponse from './utils/dnsResponse.ts'
-import isDomainBlocked from "./utils/isDomainBlocked.ts";
+import createDNSResponse from './utils/createDNSResponse.ts'
+import DomainBlacklistChecker from "./utils/DomainBlacklistChecker.ts";
 
 const isBase64 = (str: string) => /^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$/.test(str);
 
@@ -12,9 +12,9 @@ export default async function GetRequest(request: Request) {
   const queryType = url.searchParams.get('type');
   const qName = isBase64(queryName) ? atob(queryName) : queryName;
 
-  if (config.useHosts && await isDomainBlocked(qName)) {
+  if (config.useHosts && await DomainBlacklistChecker.fromStream(qName)) {
     console.log('is black listed', qName);
-    return new Response(dnsPacket.encode(dnsResponse(qName, queryType || 'A')), { status: 200, headers: config.headers })
+    return new Response(dnsPacket.encode(createDNSResponse({name:qName, type:queryType || 'A', class:"IN"})), { status: 200, headers: config.headers })
   }
 
   const query = dnsPacket.encode({

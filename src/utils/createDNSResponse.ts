@@ -1,6 +1,8 @@
-export default function dnsResponse(qName: string, qType: string) {
+import { DNSQuestion } from '../../types.ts'
+
+export default function createDNSResponse(question: DNSQuestion, id: number | string = 18850) {
   return {
-    id: 18850,
+    id,
     type: "response",
     flags: 384,
     flag_qr: true,
@@ -13,13 +15,13 @@ export default function dnsResponse(qName: string, qType: string) {
     flag_ad: false,
     flag_cd: false,
     rcode: "NOERROR",
-    questions: [{ name: qName, type: "A", class: "IN" }],
+    questions: [{ name: question.name, type: question.type, class: question.class }],
     answers: [
       {
-        name: qName,
-        type: qType,
+        name: question.name,
+        type: question.type,
         ttl: 300,
-        class: "IN",
+        class: question.class,
         flush: false,
         data: "0.0.0.0"
       }

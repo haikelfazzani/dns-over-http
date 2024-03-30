@@ -1,10 +1,11 @@
-type DNSQuestion = {
-  type: 'A',
-  name: 'google.com'
+export type DNSQuestion = {
+  type: string,
+  name: string,
+  class: string
 }
 
 export type DNSPostQuery = {
-  id: 1,
+  id: number | string,
   type: "query",
   flags: 256,
   flag_qr: boolean,
