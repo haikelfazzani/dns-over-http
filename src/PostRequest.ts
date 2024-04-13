@@ -5,10 +5,6 @@ import { Buffer } from "node:buffer";
 import DomainBlacklistChecker from "./utils/DomainBlacklistChecker.ts";
 import bufferToJSON from "./utils/bufferToJSON.ts";
 
-/**
- * DNS query format { type: 'query', id: 1, flags: 256, questions: [{ type: 'A', name: 'google.com' }] }
- */
-
 export default async function PostRequest(request: Request) {
   const contentType = request.headers.get('content-type');
 
@@ -23,6 +19,8 @@ export default async function PostRequest(request: Request) {
     return new Response(null, { status: 200, headers: config.headers })
   }
 
+  console.log(arrayBuffer);
+  
   const buffer = decode(arrayBuffer);
   console.log(buffer);
   
