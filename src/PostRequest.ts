@@ -1,7 +1,6 @@
 import axios from 'npm:axios';
 import { decode } from "npm:dnspacket-ts";
 import config from '../config.ts';
-import { Buffer } from "node:buffer";
 import DomainBlacklistChecker from "./utils/DomainBlacklistChecker.ts";
 import bufferToJSON from "./utils/bufferToJSON.ts";
 
@@ -21,11 +20,8 @@ export default async function PostRequest(request: Request) {
 
   console.log(arrayBuffer);
   
-  const buffer = decode(arrayBuffer);
-  console.log(buffer);
-  
-
-  if (!Buffer.isBuffer(buffer)) throw new Error('DNS query is not buffer');
+  const json = decode(arrayBuffer);
+  console.log(json);
 
   const rdr = await axios.post(config.upstream, arrayBuffer, {
     method: 'POST',
