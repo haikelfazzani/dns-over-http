@@ -1,5 +1,5 @@
 import axios from 'npm:axios';
-import { decode } from "npm:dnspacket-ts@1.0.2";
+import { decode } from "npm:dnspacket-ts@1.0.3";
 import config from '../config.ts';
 import DomainBlacklistChecker from "./utils/DomainBlacklistChecker.ts";
 import bufferToJSON from "./utils/bufferToJSON.ts";
@@ -27,6 +27,6 @@ export default async function PostRequest(request: Request) {
   console.log(rdr.data);
   
   const json = decode(rdr.data);
-  console.log(json);
+  console.log(json.answers);
   return new Response(rdr.data, { status: 200, headers: config.headers });
 }
