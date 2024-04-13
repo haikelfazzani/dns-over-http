@@ -24,6 +24,8 @@ export default async function PostRequest(request: Request) {
     responseType: 'arraybuffer'
   });
   
+  console.log(rdr.data);
+  
   const json = decode(rdr.data);
   console.log(json);
   return new Response(rdr.data, { status: 200, headers: config.headers });
