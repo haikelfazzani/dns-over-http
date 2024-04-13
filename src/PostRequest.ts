@@ -1,6 +1,6 @@
 import axios from 'npm:axios';
 import { decode } from "npm:dnspacket-ts@1.0.3";
-import config from '../config.ts';
+import config from '../config.ts';'
 import DomainBlacklistChecker from "./utils/DomainBlacklistChecker.ts";
 import bufferToJSON from "./utils/bufferToJSON.ts";
 
@@ -17,16 +17,20 @@ export default async function PostRequest(request: Request) {
     console.log('black listed', question.name);
     return new Response(null, { status: 200, headers: config.headers })
   }
-  
+
   const rdr = await axios.post(config.upstream, arrayBuffer, {
     method: 'POST',
     headers: { 'Content-Type': 'application/dns-message' },
     responseType: 'arraybuffer'
   });
-  
-  console.log(rdr.data);
-  
-  const json = decode(rdr.data);
-  console.log(json.answers);
-  return new Response(rdr.data, { status: 200, headers: config.headers });
+
+  const data = rdr.data as ArrayBuffer;
+
+  const ab = new Uint8Array(data).buffer;
+  console.log(data.byteLength, data, ab);
+
+  const json = decode(data);
+  // deno-lint-ignore no-explicit-any
+  console.log(json.questions[0], (json.answers as any)[0]);
+  return new Response(data, { status: 200, headers: config.headers });
 }
