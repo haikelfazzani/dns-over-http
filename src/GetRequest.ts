@@ -1,7 +1,7 @@
 import axios from 'npm:axios';
-import dnsPacket from 'npm:dns-packet';
+import { encode } from "npm:dnspacket-ts";
 import config from '../config.ts';
-import createDNSResponse from './utils/createDNSResponse.ts'
+// import createDNSResponse from './utils/createDNSResponse.ts'
 import DomainBlacklistChecker from "./utils/DomainBlacklistChecker.ts";
 
 const isBase64 = (str: string) => /^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$/.test(str);
@@ -9,19 +9,25 @@ const isBase64 = (str: string) => /^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[
 export default async function GetRequest(request: Request) {
   const url = new URL(request.url);
   const queryName = url.searchParams.get('dns')!;
-  const queryType = url.searchParams.get('type');
+  // deno-lint-ignore no-explicit-any
+  const queryType = url.searchParams.get('type') as any;
   const qName = isBase64(queryName) ? atob(queryName) : queryName;
 
   if (config.useHosts && await DomainBlacklistChecker.fromStream(qName)) {
     console.log('is black listed', qName);
-    return new Response(dnsPacket.encode(createDNSResponse({name:qName, type:queryType || 'A', class:"IN"})), { status: 200, headers: config.headers })
+    // const response = createDNSResponse({ name: qName, type: queryType || 'A', class: "IN" });
+    return new Response(null, { status: 200, headers: config.headers })
   }
 
-  const query = dnsPacket.encode({
-    type: 'query',
-    id: Math.floor(Math.random() * 65535),
-    flags: dnsPacket.RECURSION_DESIRED, questions: [{ type: queryType || 'A', name: qName }]
-  });
+  const query = encode({
+    id: 153,
+    flags: {
+      RD: 1,
+    },
+    questions: [
+      { CLASS: "IN", NAME: qName, TYPE: queryType || 'A'},
+    ],
+  })
 
   const rdr = await axios.post(config.upstream, query, {
     method: 'POST',

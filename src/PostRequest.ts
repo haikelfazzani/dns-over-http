@@ -1,10 +1,9 @@
 import axios from 'npm:axios';
-import dnsPacket from 'npm:dns-packet';
+import { decode } from "npm:dnspacket-ts";
 import config from '../config.ts';
 import { Buffer } from "node:buffer";
 import DomainBlacklistChecker from "./utils/DomainBlacklistChecker.ts";
 import bufferToJSON from "./utils/bufferToJSON.ts";
-import createDNSResponse from "./utils/createDNSResponse.ts";
 
 /**
  * DNS query format { type: 'query', id: 1, flags: 256, questions: [{ type: 'A', name: 'google.com' }] }
@@ -21,14 +20,16 @@ export default async function PostRequest(request: Request) {
 
   if (config.useHosts && await DomainBlacklistChecker.fromStream(question.name)) {
     console.log('black listed', question.name);
-    return new Response(dnsPacket.encode(createDNSResponse(question, dnsJSON.id)), { status: 200, headers: config.headers })
+    return new Response(null, { status: 200, headers: config.headers })
   }
+
+  const buffer = decode(arrayBuffer);
+  console.log(buffer);
   
-  const buffer = dnsPacket.encode(dnsJSON);
 
   if (!Buffer.isBuffer(buffer)) throw new Error('DNS query is not buffer');
 
-  const rdr = await axios.post(config.upstream, buffer, {
+  const rdr = await axios.post(config.upstream, arrayBuffer, {
     method: 'POST',
     headers: { 'Content-Type': 'application/dns-message' },
     responseType: 'arraybuffer'

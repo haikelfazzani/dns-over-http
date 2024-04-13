@@ -1,32 +1,20 @@
 import { DNSQuestion } from '../../types.ts'
 
-export default function createDNSResponse(question: DNSQuestion, id: number | string = 18850) {
+export default function createDNSResponse(question: DNSQuestion, id: number = 0) {
   return {
-    id,
-    type: "response",
-    flags: 384,
-    flag_qr: true,
-    opcode: "QUERY",
-    flag_aa: false,
-    flag_tc: false,
-    flag_rd: true,
-    flag_ra: true,
-    flag_z: false,
-    flag_ad: false,
-    flag_cd: false,
-    rcode: "NOERROR",
-    questions: [{ name: question.name, type: question.type, class: question.class }],
-    answers: [
-      {
-        name: question.name,
-        type: question.type,
-        ttl: 300,
-        class: question.class,
-        flush: false,
-        data: "0.0.0.0"
-      }
-    ],
-    authorities: [],
-    additionals: []
+    id: id,
+    flags: {
+      QR: "RESPONSE",
+      Opcode: 0,
+      AA: 0,
+      TC: 0,
+      RD: 1,
+      RA: 1,
+      Z: 0,
+      RCODE: 'NOERROR'
+    },
+    questions: [ { CLASS: question.class, NAME: question.name, TYPE: question.type } ],
+
   }
+  
 }
