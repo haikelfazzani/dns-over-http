@@ -17,17 +17,14 @@ export default async function PostRequest(request: Request) {
     console.log('black listed', question.name);
     return new Response(null, { status: 200, headers: config.headers })
   }
-
-  console.log(arrayBuffer);
   
-  const json = decode(arrayBuffer);
-  console.log(json);
-
   const rdr = await axios.post(config.upstream, arrayBuffer, {
     method: 'POST',
     headers: { 'Content-Type': 'application/dns-message' },
     responseType: 'arraybuffer'
   });
-
+  
+  const json = decode(rdr.data);
+  console.log(json);
   return new Response(rdr.data, { status: 200, headers: config.headers });
 }
