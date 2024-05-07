@@ -1,5 +1,5 @@
 import axios from 'npm:axios';
-import { encode } from "npm:dnspacket-ts";
+import { encode } from "npm:dnspacket-ts@1.0.9";
 import config from '../config.ts';
 // import createDNSResponse from './utils/createDNSResponse.ts'
 import DomainBlacklistChecker from "./utils/DomainBlacklistChecker.ts";
