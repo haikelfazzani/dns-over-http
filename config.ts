@@ -13,7 +13,7 @@ const config = {
 
   useHosts: true,
 
-  BLOCKLIST_URL: 'https://raw.githubusercontent.com/hagezi/dns-blocklists/main/hosts/light.txt'
+  BLOCKLIST_URL: 'https://raw.githubusercontent.com/badmojr/1Hosts/master/Pro/wildcards.txt'
 }
 
 export default config
