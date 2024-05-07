@@ -11,6 +11,8 @@ export default async function PostRequest(request: Request) {
   const arrayBuffer = await request.arrayBuffer();
   const question = decode(arrayBuffer).questions[0];
 
+console.log(question.NAME)
+
   if (config.useHosts && await DomainBlacklistChecker.fromFile(question.NAME)) {
     console.log('black listed', question.NAME);
     return new Response(null, { status: 200, headers: config.headers })
