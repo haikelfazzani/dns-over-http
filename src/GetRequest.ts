@@ -13,7 +13,7 @@ export default async function GetRequest(request: Request) {
   const queryType = url.searchParams.get('type') as any;
   const qName = isBase64(queryName) ? atob(queryName) : queryName;
 
-  if (config.useHosts && await DomainBlacklistChecker.fromStream(qName)) {
+  if (config.useHosts && await DomainBlacklistChecker.fromFile(qName)) {
     console.log('is black listed', qName);
     // const response = createDNSResponse({ name: qName, type: queryType || 'A', class: "IN" });
     return new Response(null, { status: 200, headers: config.headers })
